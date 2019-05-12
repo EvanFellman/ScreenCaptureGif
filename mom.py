@@ -63,6 +63,7 @@ mousePositions = []
 with mss.mss() as sct:
 	mon = sct.monitors[1]
 monitor = {"top": y1, "left": x1, "width": (x2 - x1), "height": (y2 - y1)}
+speed = 1 / float(open("data/data.txt", "r").read())
 while flag:
 	with mss.mss() as sct:
 		mousePositions.append(pyautogui.position())
@@ -70,7 +71,7 @@ while flag:
 		if keyboard.is_pressed('ctrl+space'):
 			flag = False
 			print('Finished recording. Now making the GIF. I will close when it is done.')
-		time.sleep(0.15)
+		time.sleep(speed)
 for i in range(len(images)):
 	temp = Image.frombytes("RGB", images[i].size, images[i].bgra, "raw", "BGRX")
 	mouseImage = Image.open("data/mouse.png")
