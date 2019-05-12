@@ -5,15 +5,12 @@ import keyboard
 import time
 import pyautogui
 import os
-# import win32gui
-# import win32con
-# win32gui.SetWindowPos(hWnd, win32con.HWND_TOPMOST, 0,0,0,0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
-firstPoint = (-1, -1)
-secondPoint = (-1, -1)
+x1, y1 = (-1, -1)
+x2, y2 = (-1, -1)
 
 
-print("click at the two corners to record at.  Then press control and space to finish recording.")
+print("Click the two corners of the area you would like to record.  Then press control and space to finish recording.")
 
 
 def on_move(x, y):
@@ -21,14 +18,16 @@ def on_move(x, y):
 
 
 def on_click(x, y, button, pressed):
-	global firstPoint
-	global secondPoint
+	global x1
+	global x2
+	global y1
+	global y2
 	if button == mouse.Button.left and pressed:
-		if firstPoint == (-1, -1):
-			firstPoint = (x, y)
+		if (x1, y1) == (-1, -1):
+			x1, y1 = (x, y)
 		else:
-			if secondPoint == (-1, -1):
-				secondPoint = (x, y)
+			if (x2, y2) == (-1, -1):
+				x2, y2 = (x, y)
 				listener.stop()
 
 
@@ -36,42 +35,29 @@ def on_scroll(x, y, dx, dy):
 	pass
 
 
-# Collect events until released
 with mouse.Listener(
 	on_move=on_move,
 	on_click=on_click,
 	on_scroll=on_scroll) as listener:
 	listener.join()
 
-# ...or, in a non-blocking fashion:
 listener = mouse.Listener(
 	on_move=on_move,
 	on_click=on_click,
 	on_scroll=on_scroll)
 listener.start()
 
-while secondPoint == (-1, -1):
-	print('hi')
-	pass
-
-x1, y1 = firstPoint
-x2, y2 = secondPoint
-
 if x2 < x1:
-	firstPoint = (x2, y1)
-	seoncPoint = (x1, y2)
 	temp = x2
 	x2 = x1
 	x1 = temp
 if y2 < y1:
-	firstPoint = (x1, y2)
-	seoncPoint = (x2, y1)
 	temp = y2
 	y2 = y1
 	y1 = temp
 
 flag = True
-print("press control and space on me to finish recording :)")
+print("\nRecording...\n\nPress control and space on me to finish recording :)")
 images = []
 mousePositions = []
 with mss.mss() as sct:
@@ -83,15 +69,15 @@ while flag:
 		images.append(sct.grab(monitor))
 		if keyboard.is_pressed('ctrl+space'):
 			flag = False
-			print('Finished recording. Now making the GIF.')
-		time.sleep(0.1)
+			print('Finished recording. Now making the GIF. I will close when it is done.')
+		time.sleep(0.15)
 for i in range(len(images)):
 	temp = Image.frombytes("RGB", images[i].size, images[i].bgra, "raw", "BGRX")
-	mmmm = Image.open("data/mouse.png")
-	ya, yeet = mousePositions[i]
-	ya -= x1
-	yeet -= y1
-	temp.paste(mmmm, (ya, yeet))
+	mouseImage = Image.open("data/mouse.png")
+	mx, my = mousePositions[i]
+	mx -= x1
+	my -= y1
+	temp.paste(mouseImage, (mx, my))
 	images[i] = temp
 flag2 = True
 i = 0
@@ -99,7 +85,7 @@ while flag2:
 	try:
 		i += 1
 		if not os.path.isfile('HereYouGo' + str(i) + '.gif'):
-			images[0].save('HereYouGo' + str(i) + '.gif', save_all=True, append_images=images[1:], duration=100, loop=0)
+			images[0].save('HereYouGo' + str(i) + '.gif', save_all=True, append_images=images[1:], duration=200, loop=0)
 			flag2 = False
 	except Exception:
 		pass
